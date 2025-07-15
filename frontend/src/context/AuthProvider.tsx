@@ -1,12 +1,12 @@
 import {useState, useMemo, useCallback, ReactNode, useEffect} from "react";
 import {AuthContext, AuthContextType} from "./AuthContext";
-import {UserDTO} from "@/context/UserDTO.ts";
-import {AuthResponse} from "@/context/AuthResponse.ts";
-import {LoginRequest} from "@/context/LoginRequest.ts";
+import {UserDTO} from "@/types/UserDTO.ts";
+import {AuthResponse} from "@/types/AuthResponse.ts";
+import {LoginRequest} from "@/types/LoginRequest.ts";
 import {jwtDecode} from "jwt-decode";
-import {JwtPayload} from "@/context/JwtPayload.ts";
+import {JwtPayload} from "@/types/JwtPayload.ts";
 import {useNavigate} from "react-router-dom";
-import {RegisterRequest} from "@/context/RegisterRequest.ts";
+import {RegisterRequest} from "@/types/RegisterRequest.ts";
 
 const LOGIN_API_URL = "/api/auth/login";
 const REGISTER_API_URL = "/api/auth/register";

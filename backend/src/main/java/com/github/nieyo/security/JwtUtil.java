@@ -46,7 +46,6 @@ public class JwtUtil {
         }
     }
 
-
     public String extractUsername(String jwt) {
         return extractAllClaims(jwt).getSubject();
     }

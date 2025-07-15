@@ -1,11 +1,11 @@
 import {Route, Routes} from "react-router-dom";
-import {LoginForm} from "@/components/LoginForm.tsx"
+import {LoginForm} from "@/app/auth/LoginForm.tsx"
 import {ThemeProvider} from "./components/ThemeProvider.tsx";
-import {RegisterForm} from "@/components/RegisterForm.tsx";
+import {RegisterForm} from "@/app/auth/RegisterForm.tsx";
 import {ForgotPasswordForm} from "@/components/ForgotPasswordForm.tsx";
-import ProtectedRoute from "@/components/ProtectedRoute.tsx";
+import ProtectedRoute from "@/app/auth/ProtectedRoute.tsx";
 import {AuthProvider} from "@/context/AuthProvider.tsx";
-import TestComponent from "@/components/TestComponent.tsx";
+import Dashboard from "@/app/dashboard/Dashboard.tsx";
 
 export default function App2() {
     return (
@@ -38,7 +38,7 @@ export default function App2() {
 
                     <Route path="/home" element={
                         <ProtectedRoute>
-                            <TestComponent/>
+                            <Dashboard/>
                         </ProtectedRoute>
                     }/>
 

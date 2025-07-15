@@ -1,7 +1,7 @@
 import { createContext } from "react";
-import { UserDTO } from "@/context/UserDTO.ts";
-import {LoginRequest} from "@/context/LoginRequest.ts";
-import {RegisterRequest} from "@/context/RegisterRequest.ts";
+import { UserDTO } from "@/types/UserDTO.ts";
+import {LoginRequest} from "@/types/LoginRequest.ts";
+import {RegisterRequest} from "@/types/RegisterRequest.ts";
 
 export type AuthContextType = {
     user: UserDTO | null;

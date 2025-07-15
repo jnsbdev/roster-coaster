@@ -12,7 +12,7 @@ import {Label} from "@/components/ui/label.tsx"
 import {Link, Navigate, useNavigate} from "react-router-dom";
 import {ModeToggle} from "@/components/ModeToggle.tsx";
 import React, {useState} from "react";
-import {useAuth} from "@/context/useAuth"
+import {useAuth} from "@/hooks/useAuth.ts"
 
 export function RegisterForm({className, ...props}: React.ComponentProps<"div">) {
 
