@@ -14,13 +14,15 @@ class UserDetailsAdapterTest {
 
     @Test
     void getAuthorities_shouldReturnRoleAdmin_whenAdminOrganizationIdsNotEmpty() {
+        UUID orgId = UUID.randomUUID();
+
         User user = new User(
                 UUID.randomUUID(),
                 "Alice",
                 "alice@example.com",
                 "password123",
-                List.of(UUID.randomUUID()),
-                List.of()
+                List.of(orgId),
+                List.of(orgId)
         );
         UserDetails userDetails = new UserDetailsAdapter(user);
 
