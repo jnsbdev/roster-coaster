@@ -1,164 +1,96 @@
 import * as React from "react"
-import {
-  BookOpen,
-  Bot,
-  Frame,
-  GalleryVerticalEnd,
-  Map,
-  PieChart,
-  Settings2,
-  SquareTerminal,
-} from "lucide-react"
-
-import { NavMain } from "@/components/nav-main"
-import { NavProjects } from "@/components/nav-projects"
-import { NavUser } from "@/components/nav-user"
+import {GalleryVerticalEnd, Plus,} from "lucide-react"
+import {NavUser} from "@/components/nav-user"
 import {OrganisationSwitcher} from "@/components/team-switcher"
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarRail,
+    Sidebar,
+    SidebarContent,
+    SidebarFooter,
+    SidebarGroup,
+    SidebarGroupContent,
+    SidebarGroupLabel,
+    SidebarHeader,
+    SidebarMenu,
+    SidebarMenuButton,
+    SidebarMenuItem,
+    SidebarRail,
 } from "@/components/ui/sidebar"
-import { useAuth } from "@/hooks/useAuth"
+import {useAuth} from "@/hooks/useAuth"
+import {useLocation} from "react-router-dom";
+import {Button} from "@/components/ui/button.tsx";
 
-// This is sample data.
+// This is sample & placeholder data.
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  organisations: [
-    {
-      name: "Personal",
-      logo: GalleryVerticalEnd,
-    },
-  ],
-  navMain: [
-    {
-      title: "Playground",
-      url: "#",
-      icon: SquareTerminal,
-      isActive: true,
-      items: [
+    organisations: [
         {
-          title: "History",
-          url: "#",
+            name: "Personal",
+            logo: GalleryVerticalEnd,
+        },
+    ],
+    navMain: [
+        {
+            title: "Organisation",
+            items: [
+                {
+                    title: "Events",
+                    url: "/home",
+                },
+            ]
         },
         {
-          title: "Starred",
-          url: "#",
+            title: "Persönlich",
+            items: [
+                {
+                    title: "Meine Events",
+                    url: "/",
+                },
+                {
+                    title: "Meine Schichten",
+                    url: "/",
+                },
+            ],
         },
-        {
-          title: "Settings",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Models",
-      url: "#",
-      icon: Bot,
-      items: [
-        {
-          title: "Genesis",
-          url: "#",
-        },
-        {
-          title: "Explorer",
-          url: "#",
-        },
-        {
-          title: "Quantum",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Documentation",
-      url: "#",
-      icon: BookOpen,
-      items: [
-        {
-          title: "Introduction",
-          url: "#",
-        },
-        {
-          title: "Get Started",
-          url: "#",
-        },
-        {
-          title: "Tutorials",
-          url: "#",
-        },
-        {
-          title: "Changelog",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Settings",
-      url: "#",
-      icon: Settings2,
-      items: [
-        {
-          title: "General",
-          url: "#",
-        },
-        {
-          title: "Team",
-          url: "#",
-        },
-        {
-          title: "Billing",
-          url: "#",
-        },
-        {
-          title: "Limits",
-          url: "#",
-        },
-      ],
-    },
-  ],
-  projects: [
-    {
-      name: "Design Engineering",
-      url: "#",
-      icon: Frame,
-    },
-    {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: PieChart,
-    },
-    {
-      name: "Travel",
-      url: "#",
-      icon: Map,
-    },
-  ],
+    ],
 }
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({...props}: React.ComponentProps<typeof Sidebar>) {
 
-  const { user } = useAuth();
+    const {user} = useAuth();
+    const location = useLocation();
+    const pathname = location.pathname;
 
-  return (
-    <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader>
-        <OrganisationSwitcher organisations={data.organisations} />
-      </SidebarHeader>
-      <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
-      </SidebarContent>
-      <SidebarFooter>
-        {user && <NavUser user={user} />}
-      </SidebarFooter>
-      <SidebarRail />
-    </Sidebar>
-  )
+
+    return (
+        <Sidebar collapsible="icon" {...props}>
+            <SidebarHeader>
+                <Button variant={"outline"}>
+                    <Plus/>
+                    Neue Organisation
+                </Button>
+                <OrganisationSwitcher organisations={data.organisations}/>
+            </SidebarHeader>
+            <SidebarContent>
+                {data.navMain.map((item) => (
+                    <SidebarGroup key={item.title}>
+                        <SidebarGroupLabel>{item.title}</SidebarGroupLabel>
+                        <SidebarGroupContent>
+                            <SidebarMenu>
+                                {item.items.map((item) => (
+                                    <SidebarMenuItem key={item.title}>
+                                        <SidebarMenuButton asChild isActive={pathname === item.url}>
+                                            <a href={item.url}>{item.title}</a>
+                                        </SidebarMenuButton>
+                                    </SidebarMenuItem>
+                                ))}
+                            </SidebarMenu>
+                        </SidebarGroupContent>
+                    </SidebarGroup>
+                ))}
+            </SidebarContent>
+            <SidebarFooter>
+                {user && <NavUser user={user}/>}
+            </SidebarFooter>
+            <SidebarRail/>
+        </Sidebar>
+    )
 }
