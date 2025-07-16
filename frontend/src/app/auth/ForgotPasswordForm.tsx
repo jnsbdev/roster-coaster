@@ -1,7 +1,7 @@
-import {Card, CardHeader, CardTitle, CardDescription, CardContent} from "@/components/ui/card"
-import {Button} from "@/components/ui/button"
-import {Input} from "@/components/ui/input"
-import {Label} from "@/components/ui/label"
+import {Card, CardHeader, CardTitle, CardDescription, CardContent} from "@/components/ui/card.tsx"
+import {Button} from "@/components/ui/button.tsx"
+import {Input} from "@/components/ui/input.tsx"
+import {Label} from "@/components/ui/label.tsx"
 import {Link} from "react-router-dom";
 import {cn} from "@/lib/utils.ts";
 import {ModeToggle} from "@/components/ModeToggle.tsx";
