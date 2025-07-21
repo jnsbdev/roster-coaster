@@ -14,7 +14,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/shift")
+@RequestMapping("/api/v1/shift")
 @RequiredArgsConstructor
 public class ShiftController {
 
