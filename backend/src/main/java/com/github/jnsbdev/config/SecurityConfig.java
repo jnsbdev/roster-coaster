@@ -41,7 +41,12 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable) // NOSONAR
                 .formLogin(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(
+                                "/api/auth/**",
+                                "/api-docs.yaml",
+                                "/api-docs/**",
+                                "/swagger-ui/**"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
