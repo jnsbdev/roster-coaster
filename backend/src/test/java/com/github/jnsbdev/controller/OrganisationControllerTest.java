@@ -58,19 +58,19 @@ class OrganisationControllerTest {
                 """.formatted(ORG1_ID, EVENT1_ID, EVENT2_ID);
 
         // Create
-        mvc.perform(post("/api/organisations")
+        mvc.perform(post("/api/v1/organisations")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Test Org"));
 
         // Get by ID
-        mvc.perform(get("/api/organisations/" + ORG1_ID))
+        mvc.perform(get("/api/v1/organisations/" + ORG1_ID))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Test Org"));
 
         // Get all
-        mvc.perform(get("/api/organisations"))
+        mvc.perform(get("/api/v1/organisations"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1));
     }
@@ -89,7 +89,7 @@ class OrganisationControllerTest {
                 }
                 """.formatted(ORG2_ID);
 
-        mvc.perform(put("/api/organisations/" + ORG2_ID)
+        mvc.perform(put("/api/v1/organisations/" + ORG2_ID)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(updated))
                 .andExpect(status().isOk())
@@ -101,7 +101,7 @@ class OrganisationControllerTest {
         Organisation org = new Organisation(ORG2_ID, "ToDelete", "admin2", List.of());
         organisationRepository.save(org);
 
-        mvc.perform(delete("/api/organisations/" + ORG2_ID))
+        mvc.perform(delete("/api/v1/organisations/" + ORG2_ID))
                 .andExpect(status().isOk());
 
         assertEquals(Optional.empty(), organisationRepository.findById(ORG2_ID));
@@ -109,7 +109,7 @@ class OrganisationControllerTest {
 
     @Test
     void getById_whenNotFound_returns404() throws Exception {
-        mvc.perform(get("/api/organisations/" + ORG1_ID))
+        mvc.perform(get("/api/v1/organisations/" + ORG1_ID))
                 .andExpect(status().isNotFound());
     }
 

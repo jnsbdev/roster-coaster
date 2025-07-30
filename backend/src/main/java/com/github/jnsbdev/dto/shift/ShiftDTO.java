@@ -1,4 +1,4 @@
-package com.github.jnsbdev.dto;
+package com.github.jnsbdev.dto.shift;
 
 import com.github.jnsbdev.entity.ShiftSignup;
 import jakarta.validation.Valid;

@@ -1,4 +1,4 @@
-package com.github.jnsbdev.dto;
+package com.github.jnsbdev.dto.auth;
 
 import jakarta.validation.constraints.NotBlank;
 
