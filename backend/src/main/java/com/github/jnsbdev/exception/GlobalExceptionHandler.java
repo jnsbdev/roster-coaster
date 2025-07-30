@@ -2,6 +2,7 @@ package com.github.jnsbdev.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -11,6 +12,12 @@ import java.util.NoSuchElementException;
 @RestControllerAdvice
 public class GlobalExceptionHandler
 {
+
+    @ExceptionHandler(BadCredentialsException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErrorMessage handleBadCredentials(BadCredentialsException ex) {
+        return new ErrorMessage("Bad credentials: " + ex.getMessage());
+    }
 
     // Missing Body
     @ResponseStatus(HttpStatus.BAD_REQUEST)
