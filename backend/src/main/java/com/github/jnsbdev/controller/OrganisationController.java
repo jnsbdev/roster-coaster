@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/organisations")
+@RequestMapping("/api/v1/organisations")
 @RequiredArgsConstructor
 public class OrganisationController {
 

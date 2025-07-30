@@ -1,135 +1,137 @@
 package com.github.jnsbdev.service;
 
-import com.github.jnsbdev.dto.AuthResult;
-import com.github.jnsbdev.dto.LoginRequest;
-import com.github.jnsbdev.dto.RegisterRequest;
+import com.github.jnsbdev.dto.auth.LoginRequest;
+import com.github.jnsbdev.dto.auth.LoginResponse;
+import com.github.jnsbdev.dto.auth.RegisterRequest;
+import com.github.jnsbdev.dto.auth.RegisterResponse;
+import com.github.jnsbdev.dto.user.CreateUserDto;
+import com.github.jnsbdev.dto.user.UserDto;
 import com.github.jnsbdev.entity.User;
-import com.github.jnsbdev.repository.UserRepository;
 import com.github.jnsbdev.security.JwtUtil;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
 
-    @Mock
-    private UserRepository userRepository;
-    @Mock
-    private PasswordEncoder passwordEncoder;
-    @Mock
-    private IdService idService;
-    @Mock
-    private JwtUtil jwtUtil;
-    @Mock
-    private AuthenticationManager authenticationManager;
+    JwtUtil jwtUtil = mock(JwtUtil.class);
+    AuthenticationManager authenticationManager = mock(AuthenticationManager.class);
+    UserService userService = mock(UserService.class);
 
-    @InjectMocks
-    private AuthService authService;
+    AuthService authService = new AuthService(userService, jwtUtil, authenticationManager);
 
     @Test
-    void registerUser_shouldSaveAndReturnUser_whenEmailNotInUse() {
-        RegisterRequest request = new RegisterRequest("Test User", "test@example.com", "password123");
-        String hashedPassword = "hashedPassword";
-        UUID userId = UUID.randomUUID();
-        User savedUser = new User(userId, "Test User", "test@example.com", hashedPassword, List.of(), List.of());
+    void register_shouldReturnRegisterResponse_whenSuccessful() {
+        // Arrange
+        RegisterRequest request = new RegisterRequest(
+                "Max Mustermann",
+                "max@example.com",
+                "secret123"
+        );
 
-        when(userRepository.findByEmail(request.email())).thenReturn(Optional.empty());
-        when(passwordEncoder.encode(request.password())).thenReturn(hashedPassword);
-        when(idService.randomId()).thenReturn(userId);
-        when(userRepository.save(any(User.class))).thenReturn(savedUser);
+        UUID expectedId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
 
-        User result = authService.registerUser(request);
+        UserDto mockUserDto = new UserDto(
+                expectedId,
+                "Max Mustermann",
+                "max@example.com",
+                List.of(),
+                List.of()
+        );
 
-        assertThat(result).isEqualTo(savedUser);
-        verify(userRepository).save(any(User.class));
+        when(userService.createUser(any(CreateUserDto.class))).thenReturn(mockUserDto);
+
+        // Act
+        RegisterResponse response = authService.register(request);
+
+        // Assert
+        assertThat(response).isNotNull();
+        assertThat(response.id()).isEqualTo(expectedId);
+        assertThat(response.name()).isEqualTo("Max Mustermann");
+        assertThat(response.email()).isEqualTo("max@example.com");
+        assertThat(response.timestamp()).isBeforeOrEqualTo(Instant.now());
     }
 
     @Test
-    void registerUser_shouldThrow_whenEmailAlreadyInUse() {
-        RegisterRequest request = new RegisterRequest("Test User", "test@example.com", "password123");
-        when(userRepository.findByEmail(request.email())).thenReturn(Optional.of(mock(User.class)));
+    void register_shouldThrowException_whenUserServiceThrows() {
+        // Arrange
+        RegisterRequest request = new RegisterRequest("Max", "max@example.com", "password123");
 
-        assertThatThrownBy(() -> authService.registerUser(request))
+        doThrow(new IllegalArgumentException("Email already in use"))
+                .when(userService).createUser(any(CreateUserDto.class));
+
+        // Act + Assert
+        assertThatThrownBy(() -> authService.register(request))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Email already in use");
+
+        verify(userService).createUser(any(CreateUserDto.class));
     }
 
     @Test
-    void registerUserAndGenerateToken_shouldReturnAuthResult() {
-        RegisterRequest request = new RegisterRequest("Test User", "test@example.com", "password123");
-        UUID userId = UUID.randomUUID();
-        String hashedPassword = "hashedPassword";
-        User user = new User(userId, "Test User", "test@example.com", hashedPassword, List.of(), List.of());
-        String token = "jwt-token";
+    void login_shouldReturnLoginResponse_whenAuthenticationSucceeds() {
+        // Arrange
+        LoginRequest request = new LoginRequest("max@example.com", "password123");
 
-        // Mock registerUser to return user
-        AuthService spyService = Mockito.spy(authService);
-        doReturn(user).when(spyService).registerUser(request);
-        when(jwtUtil.generateToken(user)).thenReturn(token);
+        User user = new User(
+                UUID.fromString("123e4567-e89b-12d3-a456-426614174000"),
+                "Max Mustermann",
+                "max@example.com",
+                "hashedPassword",
+                List.of(),
+                List.of()
+        );
 
-        AuthResult result = spyService.registerUserAndGenerateToken(request);
+        UserDto userDto = new UserDto(
+                user.id(),
+                user.name(),
+                user.email(),
+                List.of(),
+                List.of()
+        );
 
-        assertThat(result.user()).isEqualTo(user);
-        assertThat(result.token()).isEqualTo(token);
+        String expectedToken = "mocked-jwt-token";
+
+        // Mocks
+        when(userService.findUserEntityByEmail(request.email())).thenReturn(user);
+        when(jwtUtil.generateToken(user)).thenReturn(expectedToken);
+        when(userService.findUserDtoByEmail(request.email())).thenReturn(userDto);
+
+        // Act
+        LoginResponse response = authService.login(request);
+
+        // Assert
+        assertThat(response).isNotNull();
+        assertThat(response.token()).isEqualTo(expectedToken);
+        assertThat(response.user()).isEqualTo(userDto);
+
+        verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
     }
 
     @Test
-    void authenticateUserAndGenerateToken_shouldReturnAuthResult_whenCredentialsValid() {
-        LoginRequest request = new LoginRequest("test@example.com", "password123");
-        UUID userId = UUID.randomUUID();
-        User user = new User(userId, "Test User", "test@example.com", "hashedPassword", List.of(), List.of());
-        String token = "jwt-token";
+    void login_shouldThrowException_whenAuthenticationFails() {
+        // Arrange
+        LoginRequest request = new LoginRequest("max@example.com", "wrongpassword");
 
-        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-                .thenReturn(mock(org.springframework.security.core.Authentication.class));
-        when(userRepository.findByEmail(request.email())).thenReturn(Optional.of(user));
-        when(jwtUtil.generateToken(user)).thenReturn(token);
+        doThrow(new BadCredentialsException("Invalid credentials"))
+                .when(authenticationManager)
+                .authenticate(any(UsernamePasswordAuthenticationToken.class));
 
-        AuthResult result = authService.authenticateUserAndGenerateToken(request);
+        // Act + Assert
+        assertThatThrownBy(() -> authService.login(request))
+                .isInstanceOf(BadCredentialsException.class)
+                .hasMessageContaining("Invalid credentials");
 
-        assertThat(result.user()).isEqualTo(user);
-        assertThat(result.token()).isEqualTo(token);
+        verifyNoMoreInteractions(userService, jwtUtil);
     }
 
-    @Test
-    void authenticateUserAndGenerateToken_shouldThrow_whenUserNotFound() {
-        LoginRequest request = new LoginRequest("test@example.com", "password123");
-
-        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-                .thenReturn(mock(org.springframework.security.core.Authentication.class));
-        when(userRepository.findByEmail(request.email())).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> authService.authenticateUserAndGenerateToken(request))
-                .isInstanceOf(UsernameNotFoundException.class)
-                .hasMessageContaining("User not found");
-    }
-
-    @Test
-    void authenticateUserAndGenerateToken_shouldThrow_whenAuthenticationFails() {
-        LoginRequest request = new LoginRequest("test@example.com", "wrongpassword");
-
-        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-                .thenThrow(new org.springframework.security.core.AuthenticationException("Bad credentials") {});
-
-        assertThatThrownBy(() -> authService.authenticateUserAndGenerateToken(request))
-                .isInstanceOf(org.springframework.security.core.AuthenticationException.class)
-                .hasMessageContaining("Bad credentials");
-    }
 }

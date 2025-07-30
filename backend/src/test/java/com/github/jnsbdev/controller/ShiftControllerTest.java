@@ -3,7 +3,7 @@ package com.github.jnsbdev.controller;
 import com.github.jnsbdev.config.FixedClockConfig;
 import com.github.jnsbdev.entity.Shift;
 import com.github.jnsbdev.entity.ShiftDuration;
-import com.github.jnsbdev.dto.ShiftDurationDTO;
+import com.github.jnsbdev.dto.shift.ShiftDurationDTO;
 import com.github.jnsbdev.entity.ShiftSignup;
 import com.github.jnsbdev.repository.ShiftRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -74,7 +74,7 @@ class ShiftControllerTest {
                 """;
 
         // When
-        mvc.perform(post("/api/shift").contentType(MediaType.APPLICATION_JSON).content(requestBody))
+        mvc.perform(post("/api/v1/shift").contentType(MediaType.APPLICATION_JSON).content(requestBody))
 
                 // Then (HTTP layer)
                 .andExpect(status().isCreated())
@@ -104,7 +104,7 @@ class ShiftControllerTest {
                 }
                 """;
 
-        mvc.perform(post("/api/shift").contentType(MediaType.APPLICATION_JSON).content(invalidBody))
+        mvc.perform(post("/api/v1/shift").contentType(MediaType.APPLICATION_JSON).content(invalidBody))
                 .andExpect(status().isBadRequest());
 
         assertEquals(0, shiftRepository.findAll().size());
@@ -137,7 +137,7 @@ class ShiftControllerTest {
     }
 
     private void testNullTimeScenario(String requestBody) throws Exception {
-        mvc.perform(post("/api/shift").contentType(MediaType.APPLICATION_JSON).content(requestBody))
+        mvc.perform(post("/api/v1/shift").contentType(MediaType.APPLICATION_JSON).content(requestBody))
                 .andExpect(status().isBadRequest());
 
         assert (shiftRepository.findAll()).isEmpty();
@@ -145,7 +145,7 @@ class ShiftControllerTest {
 
     @Test
     void saveShift_shouldReturn400WhenBodyIsMissing() throws Exception {
-        mvc.perform(post("/api/shift")  // No .content() or .contentType()
+        mvc.perform(post("/api/v1/shift")  // No .content() or .contentType()
                 .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isBadRequest());
     }
 
@@ -154,7 +154,7 @@ class ShiftControllerTest {
     @Test
     void getShifts_whenEmpty_returnEmptyList() throws Exception {
         // WHEN
-        mvc.perform(get("/api/shift").contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(get("/api/v1/shift").contentType(MediaType.APPLICATION_JSON))
                 // THEN
                 .andExpect(status().isOk()).andExpect(content().json("""
                           []
@@ -179,7 +179,7 @@ class ShiftControllerTest {
         shiftRepository.save(shift2);
 
         // WHEN
-        mvc.perform(get("/api/shift").contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(get("/api/v1/shift").contentType(MediaType.APPLICATION_JSON))
                 // THEN
                 .andExpect(status().isOk())
                 .andExpect(content().json("""
@@ -217,7 +217,7 @@ class ShiftControllerTest {
 
         shiftRepository.save(expected);
         // WHEN
-        mvc.perform(get("/api/shift/" + ID_3).contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(get("/api/v1/shift/" + ID_3).contentType(MediaType.APPLICATION_JSON))
                 // THEN
                 .andExpect(status().isOk())
                 .andExpect(content().json("""
@@ -235,7 +235,7 @@ class ShiftControllerTest {
 
     @Test
     void getShiftById_whenNotFound_return404() throws Exception {
-        mvc.perform(get("/api/shift/" + ID_0).contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(get("/api/v1/shift/" + ID_0).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
 
@@ -254,7 +254,7 @@ class ShiftControllerTest {
 
         shiftRepository.save(shift);
         // WHEN
-        mvc.perform(put("/api/shift/" + ID_1)
+        mvc.perform(put("/api/v1/shift/" + ID_1)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -286,7 +286,7 @@ class ShiftControllerTest {
         UUID id = ID_0;
 
         // WHEN
-        mvc.perform(put("/api/shift/" + id)
+        mvc.perform(put("/api/v1/shift/" + id)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -320,7 +320,7 @@ class ShiftControllerTest {
         String bodyId = ID_2.toString();
 
         // WHEN
-        mvc.perform(put("/api/shift/" + urlId)
+        mvc.perform(put("/api/v1/shift/" + urlId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                       {
@@ -352,13 +352,13 @@ class ShiftControllerTest {
         shiftRepository.save(shiftToDelete);
 
         // WHEN & THEN
-        mvc.perform(delete("/api/shift/" + ID_1).contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(delete("/api/v1/shift/" + ID_1).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
 
     @Test
     void deleteShift_whenNotFound_returnNotFound() throws Exception {
-        mvc.perform(delete("/api/shift/" + ID_0).contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(delete("/api/v1/shift/" + ID_0).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
 }

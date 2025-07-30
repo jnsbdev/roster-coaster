@@ -16,7 +16,7 @@ public class GlobalExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ErrorMessage handleMissingBody(HttpMessageNotReadableException ex) {
-        return new ErrorMessage(ex.getMessage());
+        return new ErrorMessage("Request-Body fehlt oder ist ungültig: " + ex.getMessage());
     }
 
     // null/invalid values

@@ -1,66 +1,53 @@
 package com.github.jnsbdev.service;
 
-import com.github.jnsbdev.dto.AuthResult;
-import com.github.jnsbdev.dto.LoginRequest;
-import com.github.jnsbdev.dto.RegisterRequest;
+import com.github.jnsbdev.dto.auth.LoginResponse;
+import com.github.jnsbdev.dto.auth.LoginRequest;
+import com.github.jnsbdev.dto.auth.RegisterRequest;
+import com.github.jnsbdev.dto.auth.RegisterResponse;
+import com.github.jnsbdev.dto.user.CreateUserDto;
+import com.github.jnsbdev.dto.user.UserDto;
 import com.github.jnsbdev.entity.User;
-import com.github.jnsbdev.repository.UserRepository;
 import com.github.jnsbdev.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.time.Instant;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final IdService idService;
+    private final UserService userService;
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
 
-    public User registerUser(RegisterRequest request) {
-        if (userRepository.findByEmail(request.email()).isPresent()) {
-            throw new IllegalArgumentException("Email already in use");
-        }
-        String hashedPassword = passwordEncoder.encode(request.password());
-        User user = new User(
-                idService.randomId(),
+    public RegisterResponse register(RegisterRequest request) {
+        CreateUserDto dto = new CreateUserDto(
                 request.name(),
                 request.email(),
-                hashedPassword,
-                List.of(),
-                List.of()
+                request.password()
         );
-        return userRepository.save(user);
+        UserDto created = userService.createUser(dto);
+        return new RegisterResponse(
+                created.id(),
+                created.name(),
+                created.email(),
+                Instant.now()
+        );
     }
 
-    public AuthResult registerUserAndGenerateToken(RegisterRequest request) {
-        User user = registerUser(request);
-        String token = jwtUtil.generateToken(user);
-        return new AuthResult(user, token);
-    }
-
-    public AuthResult authenticateUserAndGenerateToken(LoginRequest request) {
-        // 1. Authenticate credentials
+    public LoginResponse login(LoginRequest request) {
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.email(), request.password())
+                new UsernamePasswordAuthenticationToken(
+                        request.email(),
+                        request.password()
+                )
         );
-
-        // 2. Load user from DB
-        User user = userRepository.findByEmail(request.email())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-
-        // 3. Generate JWT token
-        String token = jwtUtil.generateToken(user);
-
-        // 4. Return AuthResult
-        return new AuthResult(user, token);
+        User userEntity = userService.findUserEntityByEmail(request.email());
+        String token = jwtUtil.generateToken(userEntity);
+        UserDto userDto = userService.findUserDtoByEmail(request.email());
+        return new LoginResponse(userDto, token);
     }
 }

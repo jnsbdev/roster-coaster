@@ -1,6 +1,6 @@
 package com.github.jnsbdev.mapper;
 
-import com.github.jnsbdev.dto.ShiftDurationDTO;
+import com.github.jnsbdev.dto.shift.ShiftDurationDTO;
 import com.github.jnsbdev.entity.ShiftDuration;
 
 import java.time.Instant;

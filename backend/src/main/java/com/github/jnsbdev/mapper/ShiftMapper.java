@@ -1,8 +1,8 @@
 package com.github.jnsbdev.mapper;
 
-import com.github.jnsbdev.dto.ShiftCreateDTO;
-import com.github.jnsbdev.dto.ShiftDTO;
-import com.github.jnsbdev.dto.ShiftDurationDTO;
+import com.github.jnsbdev.dto.shift.ShiftCreateDTO;
+import com.github.jnsbdev.dto.shift.ShiftDTO;
+import com.github.jnsbdev.dto.shift.ShiftDurationDTO;
 import com.github.jnsbdev.entity.Shift;
 import com.github.jnsbdev.entity.ShiftDuration;
 import com.github.jnsbdev.entity.ShiftSignup;

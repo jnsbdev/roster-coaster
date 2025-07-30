@@ -1,7 +1,7 @@
 package com.github.jnsbdev.controller;
 
-import com.github.jnsbdev.dto.ShiftCreateDTO;
-import com.github.jnsbdev.dto.ShiftDTO;
+import com.github.jnsbdev.dto.shift.ShiftCreateDTO;
+import com.github.jnsbdev.dto.shift.ShiftDTO;
 import com.github.jnsbdev.service.ShiftService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +14,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/shift")
+@RequestMapping("/api/v1/shift")
 @RequiredArgsConstructor
 public class ShiftController {
 

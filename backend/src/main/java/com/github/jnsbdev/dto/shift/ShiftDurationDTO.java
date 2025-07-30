@@ -1,4 +1,4 @@
-package com.github.jnsbdev.dto;
+package com.github.jnsbdev.dto.shift;
 
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Builder;
