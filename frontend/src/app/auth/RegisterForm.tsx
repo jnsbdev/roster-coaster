@@ -139,7 +139,7 @@ export function RegisterForm({className, ...props}: React.ComponentProps<"div">)
                                 >
                                     {loading
                                         ? "Registering..."
-                                        : error ?? "Register"}
+                                        : error ?? "Register & Login"}
                                 </Button>
                             </div>
 

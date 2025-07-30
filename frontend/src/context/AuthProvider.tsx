@@ -8,30 +8,15 @@ import {JwtPayload} from "@/types/JwtPayload.ts";
 import {useNavigate} from "react-router-dom";
 import {RegisterRequest} from "@/types/RegisterRequest.ts";
 
-const LOGIN_API_URL = "/api/auth/login";
-const REGISTER_API_URL = "/api/auth/register";
+
+const API_BASE_URL = "/api/v1"
+const LOGIN_API_URL = API_BASE_URL + "/auth/login";
+const REGISTER_API_URL = API_BASE_URL + "/auth/register";
 
 export function AuthProvider({children}: Readonly<{ children: ReactNode }>) {
     const [user, setUser] = useState<UserDTO | null>(null);
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
-
-    const register = useCallback(async (request: RegisterRequest) => {
-        const response = await fetch(REGISTER_API_URL, {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify(request),
-        });
-
-        if (!response.ok) {
-            throw new Error("Registration failed");
-        }
-
-        const data: AuthResponse = await response.json();
-        localStorage.setItem("token", data.token);
-        const payload = jwtDecode<JwtPayload>(data.token);
-        setUser({ name: payload.name, email: payload.sub });
-    }, []);
 
     const login = useCallback(async (request: LoginRequest) => {
         const response = await fetch(LOGIN_API_URL, {
@@ -49,6 +34,20 @@ export function AuthProvider({children}: Readonly<{ children: ReactNode }>) {
         const payload = jwtDecode<JwtPayload>(data.token);
         setUser({ name: payload.name, email: payload.sub });
     }, []);
+
+    const register = useCallback(async (request: RegisterRequest) => {
+        const response = await fetch(REGISTER_API_URL, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(request),
+        });
+
+        if (!response.ok) {
+            throw new Error("Registration failed");
+        }
+
+        await login({ email: request.email, password: request.password });
+    }, [login]);
 
     const logout = useCallback(() => {
         setUser(null);
