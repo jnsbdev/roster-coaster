@@ -9,7 +9,7 @@ const useShiftState = () => {
     const [shiftList, setShiftList] = useState<ShiftDTO[]>([]);
     const [shiftListIsLoading, setShiftListIsLoading] = useState<boolean>(true);
     const [shiftListError, setShiftListError] = useState<string | null>(null);
-    const baseURL = "/api/shift";
+    const baseURL = "/api/v1/shift";
 
     const getShiftList = useCallback(() => {
         setShiftListIsLoading(true);
